@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Pembuat Nama Peliharaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: #e5e7eb;
+            color: #374151;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 14px;
+            margin: 4px;
+        }
+        .tag button {
+            margin-left: 8px;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+        }
+        .tag button:hover {
+            color: #374151;
+        }
+        /* Custom spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-md bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8">
+        
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">AI Pembuat Nama Peliharaan</h1>
+            <p class="text-gray-400 mt-2">Temukan nama yang sempurna untuk teman berbulu Anda!</p>
+        </div>
+
+        <hr class="border-gray-700 my-6">
+
+        <!-- Form Input -->
+        <div class="space-y-5">
+            <div>
+                <label for="ownerName" class="block text-sm font-medium text-gray-300 mb-2">Nama Pemilik</label>
+                <input type="text" id="ownerName" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition" placeholder="Contoh: Budi">
+            </div>
+
+            <div>
+                <label for="petType" class="block text-sm font-medium text-gray-300 mb-2">Jenis Peliharaan</label>
+                <select id="petType" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
+                    <option>Kucing</option>
+                    <option>Anjing</option>
+                    <option>Ikan</option>
+                    <option>Burung</option>
+                    <option>Hamster</option>
+                    <option>Kelinci</option>
+                    <option>Lainnya</option>
+                </select>
+            </div>
+            
+            <!-- UPDATED: Letter Count Dropdown -->
+            <div>
+                <label for="letterCount" class="block text-sm font-medium text-gray-300 mb-2">Berapa Huruf?</label>
+                <select id="letterCount" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
+                    <option value="3">Sekitar 3 Huruf</option>
+                    <option value="4">Sekitar 4 Huruf</option>
+                    <option value="5" selected>Sekitar 5 Huruf</option>
+                    <option value="6">Sekitar 6 Huruf</option>
+                    <option value="7">Sekitar 7 Huruf</option>
+                    <option value="8">Sekitar 8 Huruf</option>
+                    <option value="9">Sekitar 9 Huruf</option>
+                    <option value="10">Sekitar 10 Huruf</option>
+                </select>
+            </div>
+
+            <!-- Name Style Dropdown -->
+            <div>
+                <label for="nameStyle" class="block text-sm font-medium text-gray-300 mb-2">Gaya Nama</label>
+                <select id="nameStyle" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
+                    <option>Lucu & Imut</option>
+                    <option>Keren & Gagah</option>
+                    <option>Elegan & Anggun</option>
+                    <option>Misterius</option>
+                    <option>Unik & Aneh</option>
+                    <option>Klasik</option>
+                    <option>Modern</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="characteristicInput" class="block text-sm font-medium text-gray-300 mb-2">Ciri-Ciri Peliharaan (Maks. 10)</label>
+                <div class="flex space-x-2">
+                    <input type="text" id="characteristicInput" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition" placeholder="Contoh: Berbulu lebat, suka bermain">
+                    <button id="addCharacteristicBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg transition">Tambah</button>
+                </div>
+            </div>
+
+            <!-- Tags Container -->
+            <div id="characteristicsContainer" class="min-h-[60px] bg-gray-700/50 border border-dashed border-gray-600 rounded-lg p-2 flex flex-wrap items-start">
+                <!-- Tags will be added here -->
+                 <p id="empty-tag-text" class="text-gray-500 text-sm p-2">Ciri-ciri yang ditambahkan akan muncul di sini...</p>
+            </div>
+        </div>
+
+        <hr class="border-gray-700 my-6">
+
+        <!-- Generate Button -->
+        <button id="generateBtn" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 rounded-lg transition-transform transform hover:scale-105 flex items-center justify-center space-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m12.728 0l.707-.707M6.343 17.657l.707.707m12.728 0l-.707.707M12 21v-1"/></svg>
+            <span>Buatkan Nama!</span>
+        </button>
+
+        <!-- Result Area -->
+        <div id="resultContainer" class="mt-6 text-center hidden">
+             <h2 class="text-lg font-semibold text-gray-300">Nama yang Dihasilkan AI:</h2>
+             <div id="loadingIndicator" class="flex justify-center items-center mt-4 hidden">
+                <div class="loader"></div>
+                <p class="ml-3 text-gray-400">AI sedang berpikir...</p>
+             </div>
+             <p id="resultText" class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-300 via-blue-400 to-purple-500 mt-2 p-4 bg-gray-700/50 rounded-lg"></p>
+        </div>
+        
+        <!-- Error Message Box -->
+        <div id="errorBox" class="hidden mt-4 bg-red-900 border border-red-700 text-red-300 px-4 py-3 rounded-lg" role="alert">
+            <strong class="font-bold">Oops!</strong>
+            <span class="block sm:inline" id="errorMessage"></span>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Element References ---
+        const ownerNameInput = document.getElementById('ownerName');
+        const petTypeSelect = document.getElementById('petType');
+        const letterCountSelect = document.getElementById('letterCount'); // Updated
+        const nameStyleSelect = document.getElementById('nameStyle'); 
+        const characteristicInput = document.getElementById('characteristicInput');
+        const addCharacteristicBtn = document.getElementById('addCharacteristicBtn');
+        const characteristicsContainer = document.getElementById('characteristicsContainer');
+        const emptyTagText = document.getElementById('empty-tag-text');
+        const generateBtn = document.getElementById('generateBtn');
+        const resultContainer = document.getElementById('resultContainer');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const resultText = document.getElementById('resultText');
+        const errorBox = document.getElementById('errorBox');
+        const errorMessage = document.getElementById('errorMessage');
+
+        let characteristics = [];
+
+        // --- Functions ---
+
+        /**
+         * Displays an error message to the user.
+         * @param {string} message - The error message to display.
+         */
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorBox.classList.remove('hidden');
+        }
+        
+        /**
+         * Hides the error message box.
+         */
+        function hideError() {
+            errorBox.classList.add('hidden');
+        }
+
+        /**
+         * Renders the characteristic tags in the container.
+         */
+        function renderCharacteristics() {
+            characteristicsContainer.innerHTML = ''; // Clear existing tags
+            if (characteristics.length === 0) {
+                 characteristicsContainer.appendChild(emptyTagText);
+                 emptyTagText.classList.remove('hidden');
+            } else {
+                emptyTagText.classList.add('hidden');
+                characteristics.forEach((char, index) => {
+                    const tag = document.createElement('div');
+                    tag.className = 'tag';
+                    tag.innerHTML = `
+                        <span>${char}</span>
+                        <button data-index="${index}">&times;</button>
+                    `;
+                    characteristicsContainer.appendChild(tag);
+                });
+            }
+        }
+
+        /**
+         * Handles adding a new characteristic.
+         */
+        function addCharacteristic() {
+            const newChar = characteristicInput.value.trim();
+            if (newChar) {
+                if (characteristics.length >= 10) { 
+                    showError("Anda hanya dapat menambahkan maksimal 10 ciri-ciri.");
+                    return;
+                }
+                characteristics.push(newChar);
+                characteristicInput.value = '';
+                renderCharacteristics();
+                hideError();
+            }
+        }
+
+        /**
+         * Handles removing a characteristic when the 'x' button is clicked.
+         * @param {Event} event - The click event.
+         */
+        function handleRemoveCharacteristic(event) {
+            if (event.target.tagName === 'BUTTON') {
+                const index = parseInt(event.target.dataset.index, 10);
+                characteristics.splice(index, 1);
+                renderCharacteristics();
+            }
+        }
+
+        /**
+         * Handles the main logic of generating a pet name.
+         */
+        async function handleGenerateName() {
+            hideError();
+            const ownerName = ownerNameInput.value.trim();
+            const petType = petTypeSelect.value;
+            const letterCount = letterCountSelect.value; // Updated
+            const nameStyle = nameStyleSelect.value;
+
+            if (!ownerName) {
+                showError("Nama pemilik tidak boleh kosong.");
+                return;
+            }
+            if (characteristics.length === 0) {
+                showError("Tambahkan setidaknya satu ciri-ciri peliharaan.");
+                return;
+            }
+
+            // Show loading state
+            resultContainer.classList.remove('hidden');
+            loadingIndicator.classList.remove('hidden');
+            resultText.classList.add('hidden');
+            generateBtn.disabled = true;
+            generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            // Construct the prompt for the AI, now with letter count
+            const characteristicsString = characteristics.join(', ');
+            const prompt = `Anda adalah AI yang sangat kreatif dalam memberikan nama.
+            Tolong buatkan satu nama hewan peliharaan yang unik dan terdengar bagus berdasarkan detail berikut.
+            - Nama harus memiliki gaya: ${nameStyle}.
+            - Nama harus terdiri dari SATU KATA saja.
+            - Panjang nama harus sekitar ${letterCount} huruf.
+            - Nama harus mudah diingat dan cocok untuk hewan peliharaan.
+            Berikan HANYA satu nama saja, tanpa penjelasan atau kalimat tambahan.
+
+            Detail Peliharaan:
+            - Jenis Hewan: ${petType}
+            - Ciri-ciri: ${characteristicsString}
+            - Nama Pemilik: ${ownerName}
+            
+            Nama yang disarankan:`;
+
+            try {
+                // --- Gemini API Call ---
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // API key is handled by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const generatedName = result.candidates[0].content.parts[0].text.trim().replace(/["*]/g, ''); // Clean up potential markdown
+                    resultText.textContent = generatedName;
+                } else {
+                    throw new Error("Respon dari AI tidak valid atau kosong.");
+                }
+
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                showError("Maaf, terjadi kesalahan saat menghubungi AI. Coba lagi nanti.");
+                resultText.textContent = "Gagal memuat...";
+            } finally {
+                // Hide loading and restore button
+                loadingIndicator.classList.add('hidden');
+                resultText.classList.remove('hidden');
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // --- Event Listeners ---
+        addCharacteristicBtn.addEventListener('click', addCharacteristic);
+        characteristicInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission
+                addCharacteristic();
+            }
+        });
+        characteristicsContainer.addEventListener('click', handleRemoveCharacteristic);
+        generateBtn.addEventListener('click', handleGenerateName);
+        
+        // --- Initial Render ---
+        renderCharacteristics();
+
+    </script>
+</body>
+</html>
