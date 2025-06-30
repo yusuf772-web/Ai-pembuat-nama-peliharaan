@@ -77,7 +77,7 @@
                 </select>
             </div>
             
-            <!-- UPDATED: Letter Count Dropdown -->
+            <!-- Letter Count Dropdown -->
             <div>
                 <label for="letterCount" class="block text-sm font-medium text-gray-300 mb-2">Berapa Huruf?</label>
                 <select id="letterCount" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
@@ -145,13 +145,18 @@
             <span class="block sm:inline" id="errorMessage"></span>
         </div>
 
+        <!-- Copyright Footer -->
+        <footer class="text-center mt-8">
+            <p id="copyright" class="text-sm text-gray-500"></p>
+        </footer>
+
     </div>
 
     <script>
         // --- Element References ---
         const ownerNameInput = document.getElementById('ownerName');
         const petTypeSelect = document.getElementById('petType');
-        const letterCountSelect = document.getElementById('letterCount'); // Updated
+        const letterCountSelect = document.getElementById('letterCount'); 
         const nameStyleSelect = document.getElementById('nameStyle'); 
         const characteristicInput = document.getElementById('characteristicInput');
         const addCharacteristicBtn = document.getElementById('addCharacteristicBtn');
@@ -163,6 +168,7 @@
         const resultText = document.getElementById('resultText');
         const errorBox = document.getElementById('errorBox');
         const errorMessage = document.getElementById('errorMessage');
+        const copyrightText = document.getElementById('copyright');
 
         let characteristics = [];
 
@@ -242,7 +248,7 @@
             hideError();
             const ownerName = ownerNameInput.value.trim();
             const petType = petTypeSelect.value;
-            const letterCount = letterCountSelect.value; // Updated
+            const letterCount = letterCountSelect.value; 
             const nameStyle = nameStyleSelect.value;
 
             if (!ownerName) {
@@ -261,7 +267,7 @@
             generateBtn.disabled = true;
             generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-            // Construct the prompt for the AI, now with letter count
+            // Construct the prompt for the AI
             const characteristicsString = characteristics.join(', ');
             const prompt = `Anda adalah AI yang sangat kreatif dalam memberikan nama.
             Tolong buatkan satu nama hewan peliharaan yang unik dan terdengar bagus berdasarkan detail berikut.
@@ -318,6 +324,14 @@
                 generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         }
+        
+        /**
+         * Sets the copyright text with the current year.
+         */
+        function setCopyright() {
+            const currentYear = new Date().getFullYear();
+            copyrightText.textContent = `© ${currentYear} Yusuf AI. All rights reserved.`;
+        }
 
         // --- Event Listeners ---
         addCharacteristicBtn.addEventListener('click', addCharacteristic);
@@ -332,6 +346,7 @@
         
         // --- Initial Render ---
         renderCharacteristics();
+        setCopyright(); // Set the copyright notice on load
 
     </script>
 </body>
